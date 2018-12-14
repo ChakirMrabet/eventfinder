@@ -69,6 +69,9 @@ export default compose(
     state => ({
       lat: state.map.currentLocation.lat,
       lng: state.map.currentLocation.lng,
+      when: state.times.selected,
+      range: state.distances.selected,
+      category: state.categories.selected,
       loading: state.events.loading,
       currentEvent: state.events.selected
     }),
@@ -76,7 +79,8 @@ export default compose(
   ),
   lifecycle({
     componentDidMount() {
-      this.props.fetchEvents(this.props.lat, this.props.lng);
+      const {lat, lng, when, range, category} = this.props;
+      this.props.fetchEvents(lat, lng, when, range, category);
     }
   }),
   pure

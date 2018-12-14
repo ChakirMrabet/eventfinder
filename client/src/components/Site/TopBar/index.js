@@ -1,5 +1,5 @@
 import React from "react";
-import { compose, withState, withHandlers, pure } from "recompose";
+import { compose, lifecycle, withState, withHandlers, pure } from "recompose";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 
@@ -10,15 +10,20 @@ import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import InputBase from "@material-ui/core/InputBase";
 import { fade } from "@material-ui/core/styles/colorManipulator";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
 
 import MenuIcon from "@material-ui/icons/Menu";
 import AccountIcon from "@material-ui/icons/AccountCircle";
 import SearchIcon from "@material-ui/icons/Search";
 
+// Custom Components
+import Select from "./SelectComponent";
+
 // Import actions
-import { searchEvent } from "../../redux/actions/events";
+import {
+  fetchCategories,
+  selectCategory
+} from "../../../redux/actions/categories";
+import { searchEvent } from "../../../redux/actions/events";
 
 const styles = theme => ({
   appBar: {
@@ -68,17 +73,21 @@ const styles = theme => ({
     paddingTop: theme.spacing.unit,
     paddingRight: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit * 10,
+    paddingLeft: theme.spacing.unit * 7,
     width: "100%"
   }
 });
 
 const Component = ({
   classes,
+  categories,
+  times,
+  distances,
   toggleSideBar,
   handleSearch,
   setSearchText,
-  searchText
+  searchText,
+  selectCategory
 }) => (
   <AppBar className={classes.appBar} position="fixed">
     <ToolBar className={classes.toolBar}>
@@ -101,12 +110,13 @@ const Component = ({
             onKeyDown={handleSearch}
           />
         </div>
-        <Select>
-          <MenuItem value={10}>Today</MenuItem>
-          <MenuItem value={20}>This Week</MenuItem>
-          <MenuItem value={30}>Next Week</MenuItem>
-          <MenuItem value={30}>Day</MenuItem>
-        </Select>
+        <Select options={times.items} defaultValue={times.selected} />
+        <Select
+          options={categories.items}
+          defaultValue={categories.selected}
+          onChange={selectCategory}
+        />
+        <Select options={distances.items} defaultValue={distances.selected} />
       </div>
       <div>
         <IconButton color="inherit">
@@ -119,15 +129,23 @@ const Component = ({
 
 export default compose(
   withState("searchText", "setSearchText", ""),
+  withState("searchWhen", "setSearchWhen", "today"),
+  withState("searchRange", "setSearchRange", 15),
   connect(
-    null,
-    dispatch => bindActionCreators({ searchEvent }, dispatch)
+    ({ categories, times, distances }) => ({ categories, times, distances }),
+    dispatch => bindActionCreators({ fetchCategories, selectCategory, searchEvent }, dispatch)
   ),
+  lifecycle({
+    componentDidMount() {
+      this.props.fetchCategories();
+    }
+  }),
   withHandlers({
-    handleSearch: ({ searchText, setSearchText, searchEvent }) => ({ keyCode }) => {
+    handleSearch: ({ searchText, searchEvent, searchWhen, searchRange }) => ({
+      keyCode
+    }) => {
       if (keyCode === 13) {
-        searchEvent(searchText);
-        setSearchText("");
+        searchEvent(searchText, searchWhen, searchRange);
       }
     }
   }),

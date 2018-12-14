@@ -11,6 +11,7 @@ app.use(helmet());
 
 // Routes
 app.use(require("./routes/events"));
+app.use(require("./routes/categories"));
 
 // If we are in production mode, route all non API requests
 // to the react app

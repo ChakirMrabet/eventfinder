@@ -4,17 +4,18 @@ const router = express.Router();
 const eventful = require("../connectors/eventful");
 
 // Get events
-router.get("/events/:lat,:lng", async (req, res) => {
-  const { lat, lng } = req.params;
+router.get("/events/:lat,:lng/:when/:range/:category", async (req, res) => {
+  const { lat, lng, when, range, category } = req.params;
 
   try {
-    const r = await eventful.get("", {
+    const r = await eventful.get("/events/search", {
       params: {
         location: `${lat},${lng}`,
         include: "categories,links",
-        within: 50,
-        page_size: 9999,
-        date: "Today"
+        within: range,
+        date: when,
+        category,
+        page_size: 9999
       }
     });
 
@@ -36,6 +37,8 @@ router.get("/events/:lat,:lng", async (req, res) => {
         startTime: item.start_time,
         stopTime: item.stop_time,
         allDay: parseInt(item.all_day) === 1,
+        links: item.links ? item.links.link : [],
+        categories: item.categories ? item.categories.category : [],
         image: item.image
       });
       return acum;
