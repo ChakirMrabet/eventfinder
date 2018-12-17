@@ -7,9 +7,7 @@ import config from "../../config";
 Geocode.setApiKey(config.googleMapsAPIKey);
 
 export const fetchEvents = (lat, lng, when, range, category) => {
-  return async (dispatch, getState) => {
-    const { map, times, distances, categories } = getState();
-
+  return async dispatch => {
     // Initiate loading
     dispatch({
       type: actionTypes.FETCHING_EVENTS
@@ -17,9 +15,7 @@ export const fetchEvents = (lat, lng, when, range, category) => {
 
     try {
       const response = await axios.get(
-        `/events/${map.currentLocation.lat},${map.currentLocation.lng}/${
-          times.selected
-        }/${distances.selected}/${categories.selected}`
+        `/events/${lat},${lng}/${when}/${range}/${category}`
       );
 
       dispatch({
@@ -50,12 +46,13 @@ export const selectEvent = event => {
   };
 };
 
-export const searchEvent = (address, when, range) => {
+export const searchEvent = (address, when, range, category) => {
+  console.log(address);
   return async dispatch => {
     const response = await Geocode.fromAddress(address);
     if (response) {
       const { lat, lng } = response.results[0].geometry.location;
-      dispatch(fetchEvents(lat, lng, when, range));
+      dispatch(fetchEvents(lat, lng, when, range, category));
       dispatch({
         type: actionTypes.MAP_CENTER_CHANGED,
         payload: { lat, lng }

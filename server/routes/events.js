@@ -7,6 +7,8 @@ const eventful = require("../connectors/eventful");
 router.get("/events/:lat,:lng/:when/:range/:category", async (req, res) => {
   const { lat, lng, when, range, category } = req.params;
 
+  console.log(req.params);
+
   try {
     const r = await eventful.get("/events/search", {
       params: {
@@ -19,30 +21,33 @@ router.get("/events/:lat,:lng/:when/:range/:category", async (req, res) => {
       }
     });
 
-    // Simplify the data we send to the client
-    const items = r.data.events.event.reduce((acum, item) => {
-      acum.push({
-        id: item.id,
-        lat: parseFloat(item.latitude),
-        lng: parseFloat(item.longitude),
-        address: item.venue_address,
-        city: item.city_name,
-        zip: parseInt(item.postal_code),
-        state: item.region_abbr,
-        country: item.country_abbr,
-        title: item.title,
-        description: item.description,
-        venueId: item.venue_id,
-        venueName: item.venue_name,
-        startTime: item.start_time,
-        stopTime: item.stop_time,
-        allDay: parseInt(item.all_day) === 1,
-        links: item.links ? item.links.link : [],
-        categories: item.categories ? item.categories.category : [],
-        image: item.image
-      });
-      return acum;
-    }, []);
+    let items = [];
+    if (parseInt(r.data.total_items)) {
+      // Simplify the data we send to the client
+      items = r.data.events.event.reduce((acum, item) => {
+        acum.push({
+          id: item.id,
+          lat: parseFloat(item.latitude),
+          lng: parseFloat(item.longitude),
+          address: item.venue_address,
+          city: item.city_name,
+          zip: parseInt(item.postal_code),
+          state: item.region_abbr,
+          country: item.country_abbr,
+          title: item.title,
+          description: item.description,
+          venueId: item.venue_id,
+          venueName: item.venue_name,
+          startTime: item.start_time,
+          stopTime: item.stop_time,
+          allDay: parseInt(item.all_day) === 1,
+          links: item.links ? item.links.link : [],
+          categories: item.categories ? item.categories.category : [],
+          image: item.image
+        });
+        return acum;
+      }, []);
+    }
 
     res.status(200).json({
       success: true,

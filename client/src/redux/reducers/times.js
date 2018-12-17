@@ -3,7 +3,8 @@ const defaultState = {
   items: [
     { value: "today", name: "Today" },
     { value: "this week", name: "This Week" },
-    { value: "next saturday", name: "Next Week" }
+    { value: "next saturday", name: "Next Week" },
+    { value: "date", name: "Date" }
   ]
 };
 

@@ -1,3 +1,5 @@
+import * as actionTypes from "../common";
+
 const defaultState = {
   selected: 15,
   items: [
@@ -11,6 +13,8 @@ const defaultState = {
 
 export default (state = defaultState, { type, payload }) => {
   switch (type) {
+    case actionTypes.SELECT_RANGE:
+      return { ...state, selected: payload };
     default:
       return state;
   }

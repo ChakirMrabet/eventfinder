@@ -19,6 +19,7 @@ import SearchIcon from "@material-ui/icons/Search";
 import Select from "./SelectComponent";
 
 // Import actions
+import { selectRange } from "../../../redux/actions/ranges";
 import {
   fetchCategories,
   selectCategory
@@ -30,7 +31,8 @@ const styles = theme => ({
     zIndex: theme.zIndex.drawer + 1
   },
   toolBar: {
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    minHeight: "unset"
   },
   logo: {
     display: "flex",
@@ -39,8 +41,7 @@ const styles = theme => ({
     alignItems: "center"
   },
   menuButton: {
-    marginLeft: -12,
-    marginRight: 20
+    marginLeft: -12
   },
   search: {
     position: "relative",
@@ -49,21 +50,8 @@ const styles = theme => ({
     "&:hover": {
       backgroundColor: fade(theme.palette.common.white, 0.25)
     },
-    marginLeft: 0,
-    width: "100%",
-    [theme.breakpoints.up("sm")]: {
-      marginLeft: theme.spacing.unit,
-      width: "auto"
-    }
-  },
-  searchIcon: {
-    width: theme.spacing.unit * 9,
-    height: "100%",
-    position: "absolute",
-    pointerEvents: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center"
+    marginLeft: theme.spacing.unit * 4,
+    width: "100%"
   },
   inputRoot: {
     color: "inherit",
@@ -73,7 +61,7 @@ const styles = theme => ({
     paddingTop: theme.spacing.unit,
     paddingRight: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit * 7,
+    paddingLeft: theme.spacing.unit,
     width: "100%"
   }
 });
@@ -82,12 +70,20 @@ const Component = ({
   classes,
   categories,
   times,
-  distances,
+  ranges,
   toggleSideBar,
+  handleAddressSearch,
   handleSearch,
-  setSearchText,
   searchText,
-  selectCategory
+  setSearchText,
+  searchWhen,
+  setSearchWhen,
+  //searchRange,
+  //setSearchRange,
+  selectedRange,
+  selectRange,
+  searchCategory,
+  setSearchCategory
 }) => (
   <AppBar className={classes.appBar} position="fixed">
     <ToolBar className={classes.toolBar}>
@@ -99,24 +95,32 @@ const Component = ({
           EventFinder
         </Typography>
         <div className={classes.search}>
-          <div className={classes.searchIcon}>
-            <SearchIcon />
-          </div>
           <InputBase
             placeholder="Address, ZIP code, or City"
             classes={{ root: classes.inputRoot, input: classes.inputInput }}
             value={searchText}
             onChange={e => setSearchText(e.target.value)}
-            onKeyDown={handleSearch}
+            onKeyDown={handleAddressSearch}
           />
         </div>
-        <Select options={times.items} defaultValue={times.selected} />
+        <Select
+          options={times.items}
+          defaultValue={searchWhen}
+          onChange={setSearchWhen}
+        />
         <Select
           options={categories.items}
-          defaultValue={categories.selected}
-          onChange={selectCategory}
+          defaultValue={searchCategory}
+          onChange={setSearchCategory}
         />
-        <Select options={distances.items} defaultValue={distances.selected} />
+        <Select
+          options={ranges.items}
+          defaultValue={selectedRange}
+          onChange={selectRange}
+        />
+        <IconButton className={classes.searchButton} color="inherit">
+          <SearchIcon onClick={handleSearch} />
+        </IconButton>
       </div>
       <div>
         <IconButton color="inherit">
@@ -128,24 +132,41 @@ const Component = ({
 );
 
 export default compose(
-  withState("searchText", "setSearchText", ""),
-  withState("searchWhen", "setSearchWhen", "today"),
-  withState("searchRange", "setSearchRange", 15),
   connect(
-    ({ categories, times, distances }) => ({ categories, times, distances }),
-    dispatch => bindActionCreators({ fetchCategories, selectCategory, searchEvent }, dispatch)
+    ({ map, categories, times, ranges }) => ({
+      searchText: map.currentAddress,
+      categories,
+      times,
+      ranges,
+      selectedRange: ranges.selected
+    }),
+    dispatch =>
+      bindActionCreators(
+        { fetchCategories, selectRange, selectCategory, searchEvent },
+        dispatch
+      )
   ),
   lifecycle({
     componentDidMount() {
       this.props.fetchCategories();
     }
   }),
+  withState("searchText", "setSearchText", ({ searchText }) => searchText),
+  withState("searchWhen", "setSearchWhen", "today"),
+  withState("searchCategory", "setSearchCategory", "all"),
   withHandlers({
-    handleSearch: ({ searchText, searchEvent, searchWhen, searchRange }) => ({
-      keyCode
-    }) => {
+    handleSearch: ({
+      searchText,
+      searchEvent,
+      searchWhen,
+      selectedRange,
+      searchCategory
+    }) => () => searchEvent(searchText, searchWhen, selectedRange, searchCategory)
+  }),
+  withHandlers({
+    handleAddressSearch: ({ handleSearch }) => ({ keyCode }) => {
       if (keyCode === 13) {
-        searchEvent(searchText, searchWhen, searchRange);
+        handleSearch();
       }
     }
   }),

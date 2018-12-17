@@ -72,11 +72,13 @@ const Component = ({ classes, options, selectedValue, handleValueChange }) => (
 export default compose(
   setPropTypes({
     options: PropTypes.arrayOf(PropTypes.object).isRequired,
-    defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     onChange: PropTypes.func
   }),
-  withState("selectedValue", "setSelectedValue", ({ defaultValue }) =>
-    defaultValue ? defaultValue : "all"
+  withState(
+    "selectedValue",
+    "setSelectedValue",
+    ({ defaultValue }) => defaultValue
   ),
   withHandlers({
     handleValueChange: ({ setSelectedValue, onChange }) => e => {

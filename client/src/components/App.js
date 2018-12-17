@@ -6,10 +6,15 @@ import { bindActionCreators } from "redux";
 
 // Material UI
 import CssBaseLine from "@material-ui/core/CssBaseline";
+import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
 
 // Custom Components
 import { Page } from "./Site";
 import Map from "./Map";
+import InfoBox from "./InfoBox";
+
+// Custom theme
+import theme from "./themes";
 
 // Actions
 import { fetchEvents } from "../redux/actions/events";
@@ -32,35 +37,15 @@ const Layer = ({ pageHeight, visible }) => {
   return null;
 };
 
-const InfoBox = ({ event }) => {
-  if (event) {
-    return (
-      <div
-        style={{
-          position: "absolute",
-          top: 100,
-          left: 50,
-          backgroundColor: "white",
-          zIndex: 1000,
-          width: 300,
-          height: 150
-        }}
-      >
-        <p>{event.title}</p>
-        <p>{event.description}</p>
-      </div>
-    );
-  }
-  return null;
-};
-
 const Component = ({ loading, currentEvent }) => (
   <CssBaseLine>
-    <Page>
-      <Layer visible={loading} />
-      <InfoBox event={currentEvent} />
-      <Map />
-    </Page>
+    <MuiThemeProvider theme={theme}>
+      <Page>
+        <Layer visible={loading} />
+        <InfoBox event={currentEvent} />
+        <Map />
+      </Page>
+    </MuiThemeProvider>
   </CssBaseLine>
 );
 
@@ -70,7 +55,7 @@ export default compose(
       lat: state.map.currentLocation.lat,
       lng: state.map.currentLocation.lng,
       when: state.times.selected,
-      range: state.distances.selected,
+      range: state.ranges.selected,
       category: state.categories.selected,
       loading: state.events.loading,
       currentEvent: state.events.selected
@@ -79,7 +64,7 @@ export default compose(
   ),
   lifecycle({
     componentDidMount() {
-      const {lat, lng, when, range, category} = this.props;
+      const { lat, lng, when, range, category } = this.props;
       this.props.fetchEvents(lat, lng, when, range, category);
     }
   }),

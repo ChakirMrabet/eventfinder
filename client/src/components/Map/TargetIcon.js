@@ -15,7 +15,10 @@ const styles = {
     width: "2em",
     "&:hover": {
       color: "red"
-    }
+    },
+    zIndex: 1000,
+    marginTop: "-1em",
+    marginLeft: "-1em"
   }
 };
 
