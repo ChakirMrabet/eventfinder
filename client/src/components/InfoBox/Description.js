@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  compose,
-  branch,
-  renderComponent,
-  renderNothing,
-  pure
-} from "recompose";
+import { compose, branch, renderComponent, pure } from "recompose";
 
 // Material UI
 import withStyles from "@material-ui/core/styles/withStyles";
@@ -21,14 +15,25 @@ const styles = {
   }
 };
 
+// Component when there is a description
 const Component = ({ classes, text }) => (
   <div className={classes.root}>
     <Typography>{text}</Typography>
   </div>
 );
 
+// Component when there is no description
+const ComponentEmpty = () => (
+  <Typography>There is no description for this event.</Typography>
+);
+
+// Enhance and export
 export default compose(
   withStyles(styles),
-  branch(({ text }) => text, renderComponent(Component), renderNothing),
+  branch(
+    ({ text }) => text,
+    renderComponent(Component),
+    renderComponent(ComponentEmpty)
+  ),
   pure
 )();

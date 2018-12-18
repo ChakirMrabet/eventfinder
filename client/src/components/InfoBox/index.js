@@ -10,9 +10,7 @@ import {
 
 // Material UI
 import withStyles from "@material-ui/core/styles/withStyles";
-import Typography from "@material-ui/core/Typography";
 import Card from "@material-ui/core/Card";
-import CardHeader from "@material-ui/core/CardHeader";
 import CardMedia from "@material-ui/core/CardMedia";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
@@ -59,7 +57,11 @@ const ImageBox = ({ image }) => {
 // Component definition
 const Component = ({ classes, event }) => (
   <Card className={classes.root}>
-    <Header title={event.title} startTime={event.startTime} />
+    <Header
+      title={event.title}
+      startTime={event.startTime}
+      stopTime={event.stopTime}
+    />
     <ImageBox image={event.image} />
     <CardContent>
       <Description text={event.description} />

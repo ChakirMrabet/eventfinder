@@ -40,8 +40,7 @@ const styles = theme => ({
     paddingTop: theme.spacing.unit,
     paddingRight: theme.spacing.unit * 5,
     paddingBottom: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit,
-    width: "100%"
+    paddingLeft: theme.spacing.unit
   }
 });
 

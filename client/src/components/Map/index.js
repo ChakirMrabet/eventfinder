@@ -21,12 +21,6 @@ import Range from "./Range";
 // Map style
 import mapTheme from "./mapTheme";
 
-const style = {
-  color: "red",
-  width: "2em",
-  height: "2em"
-};
-
 const renderMarkers = (items, selectedEvent, selectEvent) => {
   const selectedEventId = selectedEvent ? selectedEvent.id : null;
 

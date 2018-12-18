@@ -1,5 +1,12 @@
 import React from "react";
-import { compose, lifecycle, withState, withHandlers, pure } from "recompose";
+import {
+  compose,
+  lifecycle,
+  withState,
+  withHandlers,
+  pure,
+  withProps
+} from "recompose";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 
@@ -12,11 +19,11 @@ import InputBase from "@material-ui/core/InputBase";
 import { fade } from "@material-ui/core/styles/colorManipulator";
 
 import MenuIcon from "@material-ui/icons/Menu";
-import AccountIcon from "@material-ui/icons/AccountCircle";
 import SearchIcon from "@material-ui/icons/Search";
 
 // Custom Components
 import Select from "./SelectComponent";
+import EventsCount from "./EventsCount";
 
 // Import actions
 import { selectRange } from "../../../redux/actions/ranges";
@@ -63,6 +70,9 @@ const styles = theme => ({
     paddingBottom: theme.spacing.unit,
     paddingLeft: theme.spacing.unit,
     width: "100%"
+  },
+  right: {
+    display: "flex"
   }
 });
 
@@ -71,6 +81,7 @@ const Component = ({
   categories,
   times,
   ranges,
+  events,
   toggleSideBar,
   handleAddressSearch,
   handleSearch,
@@ -78,8 +89,6 @@ const Component = ({
   setSearchText,
   searchWhen,
   setSearchWhen,
-  //searchRange,
-  //setSearchRange,
   selectedRange,
   selectRange,
   searchCategory,
@@ -122,10 +131,8 @@ const Component = ({
           <SearchIcon onClick={handleSearch} />
         </IconButton>
       </div>
-      <div>
-        <IconButton color="inherit">
-          <AccountIcon />
-        </IconButton>
+      <div className={classes.right}>
+        <EventsCount events={events} />
       </div>
     </ToolBar>
   </AppBar>
@@ -133,8 +140,9 @@ const Component = ({
 
 export default compose(
   connect(
-    ({ map, categories, times, ranges }) => ({
+    ({ map, categories, times, ranges, events }) => ({
       searchText: map.currentAddress,
+      events: events.total,
       categories,
       times,
       ranges,
@@ -161,7 +169,8 @@ export default compose(
       searchWhen,
       selectedRange,
       searchCategory
-    }) => () => searchEvent(searchText, searchWhen, selectedRange, searchCategory)
+    }) => () =>
+      searchEvent(searchText, searchWhen, selectedRange, searchCategory)
   }),
   withHandlers({
     handleAddressSearch: ({ handleSearch }) => ({ keyCode }) => {
@@ -171,5 +180,6 @@ export default compose(
     }
   }),
   withStyles(styles),
+  withProps(props => console.log(props)),
   pure
 )(Component);

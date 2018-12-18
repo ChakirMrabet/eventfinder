@@ -9,41 +9,24 @@ import CssBaseLine from "@material-ui/core/CssBaseline";
 import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
 
 // Custom Components
-import { Page } from "./Site";
-import Map from "./Map";
-import InfoBox from "./InfoBox";
+import LoadingLayer from "./LoadingLayer";
+import { Page } from "../Site";
+import MapComponent from "../Map";
+import InfoBox from "../InfoBox";
 
 // Custom theme
-import theme from "./themes";
+import theme from "../themes";
 
 // Actions
-import { fetchEvents } from "../redux/actions/events";
-
-const Layer = ({ pageHeight, visible }) => {
-  if (visible) {
-    return (
-      <div
-        style={{
-          width: "100%",
-          height: pageHeight,
-          opacity: 0.5,
-          position: "absolute",
-          zIndex: 1000,
-          backgroundColor: "#aaaaaa"
-        }}
-      />
-    );
-  }
-  return null;
-};
+import { fetchEvents } from "../../redux/actions/events";
 
 const Component = ({ loading, currentEvent }) => (
   <CssBaseLine>
     <MuiThemeProvider theme={theme}>
       <Page>
-        <Layer visible={loading} />
+        <LoadingLayer visible={loading} />
         <InfoBox event={currentEvent} />
-        <Map />
+        <MapComponent />
       </Page>
     </MuiThemeProvider>
   </CssBaseLine>
