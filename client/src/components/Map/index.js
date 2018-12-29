@@ -15,8 +15,7 @@ import { fetchEvents, selectEvent } from "../../redux/actions/events";
 
 // Custom Components
 import TargetMarker from "./TargetIcon";
-import EventMarker from "./EventIcon" ;
-import Range from "./Range";
+import EventMarker from "./EventIcon";
 
 // Map style
 import mapTheme from "./mapTheme";
@@ -25,20 +24,45 @@ const renderMarkers = (items, selectedEvent, selectEvent) => {
   const selectedEventId = selectedEvent ? selectedEvent.id : null;
 
   if (items) {
-    return items.map((item, i) => (
-      <EventMarker
-        key={i}
-        lat={item.lat}
-        lng={item.lng}
-        text={item.title}
-        selected={selectedEventId === item.id}
-        onClick={() => selectEvent(item)}
-      />
-    ));
+    return items.map(item => {
+      const categories = item.categories.category;
+      const categoryValue = categories.length ? categories[0].id : "";
+
+      return (
+        <EventMarker
+          key={item.id}
+          lat={item.lat}
+          lng={item.lng}
+          id={item.id}
+          text={item.title}
+          categoryValue={categoryValue}
+          free={item.free}
+          selected={selectedEventId === item.id}
+          onClick={() => selectEvent(item.id)}
+        />
+      );
+    });
   }
   return null;
 };
 
+// Adds a circle object to the map that will represent the range
+// of the search
+const handleApiLoaded = (map, maps, lat, lng, range) => {
+  window.mapCircle = new maps.Circle({
+    strokeColor: "#46d5f7",
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    fillColor: "#aaaaaa",
+    fillOpacity: 0.2,
+    map: map,
+    center: { lat, lng },
+    // radius is expected by Google in meters
+    radius: range * 1.60934 * 1000
+  });
+};
+
+// Map component definition
 const Component = ({
   apiKey,
   height,
@@ -48,7 +72,6 @@ const Component = ({
   events,
   range,
   setZoom,
-  fetchEvents,
   selectEvent,
   selectedEvent
 }) => (
@@ -57,16 +80,23 @@ const Component = ({
       bootstrapURLKeys={{ key: apiKey }}
       center={{ lat, lng }}
       zoom={zoom}
-      onChange={({ center: { lat, lng }, zoom }) => {
-        //fetchEvents(lat, lng);
+      onChange={({ zoom }) => {
+        // TODO: add code here for auto-search while map is moving
         selectEvent(null);
         setZoom(zoom);
+        if (window.mapCircle) {
+          window.mapCircle.setCenter({ lat, lng });
+          window.mapCircle.setRadius(range * 1.60934 * 1000);
+        }
       }}
       options={() => ({
         styles: mapTheme
       })}
+      yesIWantToUseGoogleMapApiInternals
+      onGoogleApiLoaded={({ map, maps }) =>
+        handleApiLoaded(map, maps, lat, lng, range)
+      }
     >
-      <Range lat={lat} lng={lng} zoom={zoom} range={range} />
       <TargetMarker lat={lat} lng={lng} />
       {renderMarkers(events, selectedEvent, selectEvent)}
     </GoogleMapReact>

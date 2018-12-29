@@ -7,8 +7,8 @@ const styles = radius => ({
     width: radius * 2,
     height: radius * 2,
     borderRadius: radius * 2,
-    backgroundColor: "#00ee00",
-    opacity: 0.08,
+    backgroundColor: "#aaaaaa",
+    opacity: 0.2,
     zIndex: 500,
     marginLeft: -radius,
     marginTop: -radius

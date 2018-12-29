@@ -1,27 +1,18 @@
 import React from "react";
-import {
-  compose,
-  lifecycle,
-  withState,
-  withHandlers,
-  pure,
-  withProps
-} from "recompose";
+import { compose, lifecycle, withState, withHandlers, pure } from "recompose";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 
-import { withStyles } from "@material-ui/core/styles";
+import withStyles from "@material-ui/core/styles/withStyles";
+import { fade } from "@material-ui/core/styles/colorManipulator";
 import AppBar from "@material-ui/core/AppBar";
 import ToolBar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
-import InputBase from "@material-ui/core/InputBase";
-import { fade } from "@material-ui/core/styles/colorManipulator";
-
 import MenuIcon from "@material-ui/icons/Menu";
-import SearchIcon from "@material-ui/icons/Search";
 
 // Custom Components
+import Address from "./AddressComponent";
 import Select from "./SelectComponent";
 import EventsCount from "./EventsCount";
 
@@ -60,17 +51,6 @@ const styles = theme => ({
     marginLeft: theme.spacing.unit * 4,
     width: "100%"
   },
-  inputRoot: {
-    color: "inherit",
-    width: "100%"
-  },
-  inputInput: {
-    paddingTop: theme.spacing.unit,
-    paddingRight: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit,
-    width: "100%"
-  },
   right: {
     display: "flex"
   }
@@ -78,21 +58,20 @@ const styles = theme => ({
 
 const Component = ({
   classes,
+  tracking,
+  initialAddress,
   categories,
   times,
   ranges,
   events,
   toggleSideBar,
   handleAddressSearch,
-  handleSearch,
-  searchText,
-  setSearchText,
+  handleWhenChange,
+  handleCategoryChange,
+  handleRangeChange,
   searchWhen,
-  setSearchWhen,
   selectedRange,
-  selectRange,
-  searchCategory,
-  setSearchCategory
+  searchCategory
 }) => (
   <AppBar className={classes.appBar} position="fixed">
     <ToolBar className={classes.toolBar}>
@@ -104,32 +83,27 @@ const Component = ({
           EventFinder
         </Typography>
         <div className={classes.search}>
-          <InputBase
-            placeholder="Address, ZIP code, or City"
-            classes={{ root: classes.inputRoot, input: classes.inputInput }}
-            value={searchText}
-            onChange={e => setSearchText(e.target.value)}
-            onKeyDown={handleAddressSearch}
+          <Address
+            loading={tracking}
+            defaultValue={initialAddress}
+            onChange={handleAddressSearch}
           />
         </div>
         <Select
           options={times.items}
           defaultValue={searchWhen}
-          onChange={setSearchWhen}
+          onChange={handleWhenChange}
         />
         <Select
           options={categories.items}
           defaultValue={searchCategory}
-          onChange={setSearchCategory}
+          onChange={handleCategoryChange}
         />
         <Select
           options={ranges.items}
           defaultValue={selectedRange}
-          onChange={selectRange}
+          onChange={handleRangeChange}
         />
-        <IconButton className={classes.searchButton} color="inherit">
-          <SearchIcon onClick={handleSearch} />
-        </IconButton>
       </div>
       <div className={classes.right}>
         <EventsCount events={events} />
@@ -140,13 +114,14 @@ const Component = ({
 
 export default compose(
   connect(
-    ({ map, categories, times, ranges, events }) => ({
-      searchText: map.currentAddress,
+    ({ app, map, categories, times, ranges, events }) => ({
+      initialAddress: map.currentAddress,
       events: events.total,
       categories,
       times,
       ranges,
-      selectedRange: ranges.selected
+      selectedRange: ranges.selected,
+      tracking: app.tracking
     }),
     dispatch =>
       bindActionCreators(
@@ -159,27 +134,36 @@ export default compose(
       this.props.fetchCategories();
     }
   }),
-  withState("searchText", "setSearchText", ({ searchText }) => searchText),
   withState("searchWhen", "setSearchWhen", "today"),
   withState("searchCategory", "setSearchCategory", "all"),
   withHandlers({
     handleSearch: ({
-      searchText,
       searchEvent,
       searchWhen,
       selectedRange,
       searchCategory
-    }) => () =>
-      searchEvent(searchText, searchWhen, selectedRange, searchCategory)
+    }) => address =>
+      searchEvent(address, searchWhen, selectedRange, searchCategory)
   }),
   withHandlers({
-    handleAddressSearch: ({ handleSearch }) => ({ keyCode }) => {
+    handleAddressSearch: ({ handleSearch }) => ({ keyCode, target }) => {
       if (keyCode === 13) {
-        handleSearch();
+        handleSearch(target.value);
       }
+    },
+    handleWhenChange: ({ handleSearch, setSearchWhen }) => value => {
+      setSearchWhen(value);
+      handleSearch();
+    },
+    handleCategoryChange: ({ handleSearch, setSearchCategory }) => value => {
+      setSearchCategory(value);
+      handleSearch();
+    },
+    handleRangeChange: ({ handleSearch, selectRange }) => value => {
+      selectRange(value);
+      handleSearch();
     }
   }),
   withStyles(styles),
-  withProps(props => console.log(props)),
   pure
 )(Component);

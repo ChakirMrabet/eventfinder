@@ -5,27 +5,27 @@ import { compose, pure } from "recompose";
 // Material UI
 import withStyles from "@material-ui/core/styles/withStyles";
 import Tooltip from "@material-ui/core/Tooltip";
-import FlagIcon from "@material-ui/icons/Flag";
+import HomeIcon from "@material-ui/icons/Home";
 
 // JS styles
 const styles = {
   root: {
     color: "green",
-    height: "2em",
-    width: "2em",
+    height: "1em",
+    width: "1em",
     "&:hover": {
       color: "red"
     },
     zIndex: 1000,
-    marginTop: "-1em",
-    marginLeft: "-1em"
+    marginTop: "-0.5em",
+    marginLeft: "-0.5em"
   }
 };
 
 // Component definition
 const Component = ({ classes }) => (
   <Tooltip title="Address you entered">
-    <FlagIcon className={classes.root} />
+    <HomeIcon className={classes.root} />
   </Tooltip>
 );
 

@@ -4,5 +4,7 @@ export default {
     lat: 37.41,
     lng: -79.27
   },
-  currentAddress: "Lynchburg, VA"
+  defaultAddress: "Lynchburg, VA",
+  sideBarWidth: 300,
+  infoBarWidth: 350,
 };
